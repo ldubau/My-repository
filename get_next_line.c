@@ -6,86 +6,13 @@
 /*   By: leondubau <leondubau@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/18 12:41:43 by ldubau            #+#    #+#             */
-/*   Updated: 2025/11/24 23:02:27 by leondubau        ###   ########.fr       */
+/*   Updated: 2025/11/26 16:54:14 by leondubau        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdlib.h>
+#include "get_next_line.h"
 
-# ifndef BUFFER_SIZE
-# define BUFFER_SIZE 100
-# endif
-
-size_t	len_stock(const char *s)
-{
-	size_t	i;
-
-	i = 0;
-	while (s[i] != '\0' && s[i] != '\n')
-		i ++;
-	if (s[i] == '\n')
-		i ++;
-	return (i);
-}
-size_t	ft_strlen(const char *s)
-{
-	size_t	i;
-
-	i = 0;
-	while (s[i] != '\0')
-		i ++;
-	return (i);
-}
-
-char	*ft_strdup(const char *s1)
-{
-	size_t	i;
-	char	*str;
-
-	i = 0;
-	str = malloc(sizeof(char) * ft_strlen(s1) + 1);
-	if (!str)
-		return (NULL);
-	while (s1[i])
-	{
-		str[i] = s1[i];
-		i ++;
-	}
-	str[i] = '\0';
-	return (str);
-}
-
-char	*my_strjoin(const char *s1, const char *s2)
-{
-	int		i;
-	int		j;
-	char	*str;
-
-	i = 0;
-	j = 0;
-	if (!s1 || !s2)
-		return (NULL);
-	str = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2)) + 1);
-	if (!str)
-		return (NULL);
-	while (s1[i])
-	{
-		str[i] = s1[i];
-		i ++;
-	}
-	while (s2[j])
-	{
-		str[i + j] = s2[j];
-		j ++;
-	}
-	str[i + j] = '\0';
-	return (str);
-}
-
-char	*ft_strchr(const char *s, int c)
+char	*my_strchr(const char *s, int c)
 {
 	int		i;
 	char	cc;
@@ -105,14 +32,18 @@ char	*ft_strchr(const char *s, int c)
 	return (NULL);
 }
 
-char	*write_line(char *str)
+char	*write_line(const char *str)
 {
 	int		size;
 	char	*res;
 	int		i;
 
 	i = 0;
-	size = len_stock(str);
+	size = 0;
+	while (str[size] != '\0' && str[size] != '\n')
+		size ++;
+	if (str[size] == '\n')
+		size ++;
 	res = malloc(sizeof(char) * size + 1);
 	while(i < size)
 	{
@@ -123,20 +54,14 @@ char	*write_line(char *str)
 	return (res);
 }
 
-char	*get_next_line(int fd)
+char	*write_stock(char *stock, int fd)
 {
-	char		buf[BUFFER_SIZE + 1];
-	char		*line;
-	static char	*stock;
-	char		*tmp;
-	int			size_read;
+	char	buf[BUFFER_SIZE + 1];
+	int		size_read;
+	char	*tmp;
 
 	size_read = 1;
-	if (!stock)
-		stock = ft_strdup("");
-	if (!stock)
-		return (NULL);
-	while (size_read > 0 && !ft_strchr(stock, '\n'))
+	while (size_read > 0 && !my_strchr(stock, '\n'))
 	{
 		size_read = read(fd, buf, BUFFER_SIZE);
 		if (size_read < 0)
@@ -148,24 +73,40 @@ char	*get_next_line(int fd)
 			return (NULL);
 		stock = tmp;
 	}
+	return (stock);
+}
+
+char	*get_next_line(int fd)
+{
+	char		*line;
+	static char	*stock;
+	char		*tmp;
+
+	if (!stock)
+		stock = my_strdup("");
+	if (!stock)
+		return (NULL);
+	stock = write_stock(stock, fd);
 	line = write_line(stock);
-	if (ft_strchr(stock, '\n'))
+	if (my_strchr(stock, '\n'))
 	{
-		tmp = ft_strdup(ft_strchr(stock, '\n') + 1);
+		tmp = my_strdup(my_strchr(stock, '\n') + 1);
 		free(stock);
 		stock = tmp;
 	}
 	return (line);
 }
 
-int    main(void)
+#include <stdio.h>
+
+int	main(void)
 {
 	char	*line;
 	int		i;
 	int		fd;
 	fd = open("text.txt", O_RDONLY);
 	i = 1;
-	while (i < 14)
+	while (i <= 13)
 	{
 		line = get_next_line(fd);
 		printf("line [%02d]: %s", i, line);
