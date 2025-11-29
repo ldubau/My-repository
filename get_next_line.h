@@ -6,7 +6,7 @@
 /*   By: ldubau <ldubau@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 16:14:09 by leondubau         #+#    #+#             */
-/*   Updated: 2025/11/28 16:27:13 by ldubau           ###   ########.fr       */
+/*   Updated: 2025/11/29 17:46:07 by ldubau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ char	*get_next_line(int fd);
 char	*write_stock(char *stock, int fd, int size_read);
 char	*write_line(const char *str);
 char	*my_strchr(const char *s, int c);
-char	*my_strjoin(const char *s1, const char *s2);
-char	*my_strdup(const char *s1);
+char	*my_strjoin(char *s1, const char *s2);
+char	*my_strdupe(const char *s1);
 void	*my_calloc(size_t count, size_t size);
 size_t	my_strlen(const char *s);
 

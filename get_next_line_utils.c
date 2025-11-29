@@ -6,7 +6,7 @@
 /*   By: ldubau <ldubau@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 16:07:47 by leondubau         #+#    #+#             */
-/*   Updated: 2025/11/28 16:07:34 by ldubau           ###   ########.fr       */
+/*   Updated: 2025/11/29 18:32:40 by ldubau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ size_t	my_strlen(const char *s)
 	return (i);
 }
 
-char	*my_strdup(const char *s1)
+char	*my_strdupe(const char *s1)
 {
 	size_t	i;
 	char	*str;
@@ -42,7 +42,7 @@ char	*my_strdup(const char *s1)
 	return (str);
 }
 
-char	*my_strjoin(const char *s1, const char *s2)
+char	*my_strjoin(char *s1, const char *s2)
 {
 	int		i;
 	int		j;
@@ -50,12 +50,10 @@ char	*my_strjoin(const char *s1, const char *s2)
 
 	i = 0;
 	j = 0;
-	if (!s1 || !s2)
-		return (NULL);
-	str = malloc(sizeof(char) * (my_strlen(s1) + my_strlen(s2)) + 1);
+	str = malloc(sizeof(char) * my_strlen(s1) + my_strlen(s2) + 1);
 	if (!str)
 		return (NULL);
-	while (s1[i])
+	while (s1 && s1[i])
 	{
 		str[i] = s1[i];
 		i ++;
@@ -65,6 +63,8 @@ char	*my_strjoin(const char *s1, const char *s2)
 		str[i + j] = s2[j];
 		j ++;
 	}
+	// if (s1)
+	// 	i --;
 	str[i + j] = '\0';
 	return (str);
 }
@@ -74,13 +74,16 @@ void	*my_calloc(size_t count, size_t size)
 	unsigned char	*ptr;
 	size_t			i;
 
-	if (count * size > (size_t) -1)
+	if (count * size > (size_t) - 1)
 		return (NULL);
 	ptr = malloc(count * size);
 	i = 0;
 	if (!ptr)
 		return (NULL);
 	while (i < count * size)
-		ptr[i ++] = '\0';
+	{
+		ptr[i] = '\0';
+		i ++;
+	}
 	return (ptr);
 }

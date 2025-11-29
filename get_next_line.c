@@ -6,7 +6,7 @@
 /*   By: ldubau <ldubau@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/18 12:41:43 by ldubau            #+#    #+#             */
-/*   Updated: 2025/11/28 19:54:33 by ldubau           ###   ########.fr       */
+/*   Updated: 2025/11/29 19:40:20 by ldubau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,11 +41,15 @@ char	*write_line(const char *str)
 
 	i = 0;
 	size = 0;
+	if (!str)
+		return (NULL);
 	while (str[size] != '\0' && str[size] != '\n')
 		size ++;
 	if (str[size] == '\n')
 		size ++;
 	res = malloc(sizeof(char) * size + 1);
+	if (!res)
+		return (NULL);
 	while (i < size)
 	{
 		res[i] = str[i];
@@ -60,7 +64,7 @@ char	*write_stock(char *stock, int fd, int size_read)
 	char	*buf;
 	char	*tmp;
 
-	buf = my_calloc(sizeof(char), BUFFER_SIZE + 1);
+	buf = my_calloc(BUFFER_SIZE + 1, sizeof(char));
 	while (size_read > 0 && !my_strchr(stock, '\n'))
 	{
 		size_read = read(fd, buf, BUFFER_SIZE);
@@ -68,16 +72,16 @@ char	*write_stock(char *stock, int fd, int size_read)
 			break ;
 		buf[size_read] = 0;
 		tmp = my_strjoin(stock, buf);
-		free(stock);
 		if (!tmp)
 			return (NULL);
+		if (stock)
+			free(stock);
 		stock = tmp;
 	}
-	if (!buf[0] && size_read <= 0)
+	if (!buf && size_read <= 0 && !stock)
 	{
 		free(stock);
-		free(buf);
-		return (NULL);
+		stock = NULL;
 	}
 	free(buf);
 	return (stock);
@@ -86,16 +90,12 @@ char	*write_stock(char *stock, int fd, int size_read)
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*stock;
+	static char	*stock = NULL;
 	char		*tmp;
 	int		size_read;
 
 	size_read = 1;
-	if (fd < 0 || fd > 1024 || BUFFER_SIZE < 1)
-		return (NULL);
-	if (!stock)
-		stock = my_strdup("");
-	if (!stock)
+	if (fd < 0 || fd > 1023 || BUFFER_SIZE < 1)
 		return (NULL);
 	tmp = NULL;
 	stock = write_stock(stock, fd, size_read);
@@ -104,8 +104,10 @@ char	*get_next_line(int fd)
 	line = write_line(stock);
 	if (my_strchr(stock, '\n'))
 	{
-		tmp = my_strdup(my_strchr(stock, '\n') + 1);
+		tmp = my_strdupe(my_strchr(stock, '\n') + 1);
 		free(stock);
+		if (!tmp)
+			return (NULL);
 		stock = tmp;
 	}
 	return (line);
@@ -118,15 +120,14 @@ char	*get_next_line(int fd)
 // 	char	*line;
 // 	int		i;
 // 	int		fd;
-// 	fd = open("text.txt", O_RDONLY);
+// 	fd = open("41_with_nl", O_RDONLY);
 // 	i = 1;
 // 	line = get_next_line(fd);
 // 	while(line)
 // 	{
-// 		printf("%s", line);
+// 		printf(" [%d]   ", printf("%s", line));
 // 		free(line);
 // 		line = get_next_line(fd);
 // 	}
-// 	close(fd);
 // 	return (0);
 // }
