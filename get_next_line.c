@@ -6,7 +6,7 @@
 /*   By: leondubau <leondubau@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/18 12:41:43 by ldubau            #+#    #+#             */
-/*   Updated: 2025/12/01 14:01:18 by leondubau        ###   ########.fr       */
+/*   Updated: 2025/12/02 15:39:02 by leondubau        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,12 @@ char	*write_stock(char *stock, int fd, int size_read)
 			free(stock);
 		stock = tmp;
 	}
+	free(buf);
+	if (size_read < 0)
+	{
+		free(stock);
+		return (NULL);
+	}
 	return (stock);
 }
 
@@ -95,6 +101,12 @@ char	*get_next_line(int fd)
 	stock = write_stock(stock, fd, size_read);
 	if (!stock)
 		return (NULL);
+	if (stock[0] == '\0')
+	{
+		free(stock);
+		stock = NULL;
+		return (NULL);
+	}
 	line = write_line(stock);
 	if (my_strchr(stock, '\n'))
 	{
@@ -104,30 +116,28 @@ char	*get_next_line(int fd)
 			return (NULL);
 		stock = tmp;
 	}
-	else if (my_strchr(stock, '\0'))
+	else
 	{
+		free (line);
 		line = stock;
-		// free(stock);
 		stock = NULL;
 	}
 	return (line);
 }
 
- #include <stdio.h>
+//  #include <stdio.h>
 
-int	main(void)
-{
-	char	*line;
-	// int		i;
-	int		fd;
-	fd = open("43_with_nl", O_RDONLY);
-	// i = 1;
-	line = get_next_line(fd);
-	while(line)
-	{
-		printf("%s", line);
-		free(line);
-		line = get_next_line(fd);
-	}
-	return (0);
-}
+// int	main(void)
+// {
+// 	char	*line;
+// 	int		fd;
+// 	fd = open("text.txt", O_RDONLY);
+// 	line = get_next_line(fd);
+// 	while(line)
+// 	{
+// 		printf("%s", line);
+// 		free(line);
+// 		line = get_next_line(fd);
+// 	}
+// 	return (0);
+// }
